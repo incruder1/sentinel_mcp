@@ -1,7 +1,7 @@
 # SentinelMCP – AI Agent Auditor
 
 **MCP-native governance for AI agents running at scale.**  
-Built for the **2 Fast 2 MCP Hackathon** — designed to run under **Archestra** as the control plane.
+Built for the **2 Fast 2 MCP Hackathon** — designed to integrate with **Archestra** deployments as a centralized auditor.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
@@ -9,7 +9,7 @@ Built for the **2 Fast 2 MCP Hackathon** — designed to run under **Archestra**
 
 ## The Problem: AI Agents Running Wild
 
-When companies deploy dozens of AI agents via Archestra:
+When companies deploy dozens of AI agents in production (e.g., using Archestra):
 
 - **Agent A** calls GPT-4 **500x in an hour** → Burns **$450** before anyone notices
 - **Agent B** accesses a **production database** it shouldn't touch → Security incident
@@ -188,6 +188,59 @@ curl -X POST http://localhost:10000/audit \
   "agents_audited": ["Agent-A", "Agent-B", "Agent-C"]
 }
 ```
+
+---
+
+## Integrating with Archestra
+
+SentinelMCP is designed as a standalone MCP server that can be deployed alongside Archestra installations for centralized agent governance.
+
+### Integration Steps
+
+**1. Deploy SentinelMCP**
+```bash
+# Option A: Use our public instance
+https://sentinel-mcp-auditor.onrender.com
+
+# Option B: Self-host with Docker
+docker build -t sentinel-mcp .
+docker run -p 10000:10000 sentinel-mcp
+
+# Option C: Deploy to your infrastructure
+# See render.yaml for deployment config
+```
+
+**2. Configure in Archestra**
+- Register SentinelMCP as an MCP server in your Archestra deployment
+- Set up agent activity log forwarding to `/audit` endpoint
+- Configure alert rules for CRITICAL/HIGH violations
+
+**3. Connect to Agent Logs**
+- Archestra agents → activity logs → SentinelMCP `/audit`
+- Returns structured violations with risk scores
+- Platform admins can view via Archestra UI or direct API calls
+
+### Architecture in Archestra Deployment
+
+```
+Your Archestra Deployment (self-hosted)
+  ├─ Application Agents (A, B, C)
+  │    └─ Generate activity logs
+  ├─ SentinelMCP (Auditor Agent)
+  │    ├─ Consumes logs via MCP
+  │    └─ Returns audit reports
+  └─ Archestra Control Plane
+       ├─ Orchestrates all agents
+       ├─ Routes logs to auditor
+       └─ Displays governance dashboard
+```
+
+### Why This Integration Matters
+
+- **Centralized governance**: One auditor for all agents in your Archestra instance
+- **Production-ready**: Designed for self-hosted enterprise deployments
+- **MCP-native**: Clean tool boundaries, structured output
+- **Flexible**: Works with any Archestra setup (on-prem, cloud, hybrid)
 
 ---
 

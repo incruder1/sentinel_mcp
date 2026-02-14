@@ -1,0 +1,54 @@
+{
+  "name": "sentinel-mcp-auditor",
+  "description": "AI Agent Auditor - Meta-level governance for multi-agent systems",
+  "version": "1.0.0",
+  "mcp_version": "2024-11-05",
+  "server": {
+    "url": "http://host.docker.internal:10000",
+    "transport": "http"
+  },
+  "capabilities": {
+    "tools": [
+      {
+        "name": "audit_agent_activity",
+        "description": "Audit AI agent activity logs and return governance report with risk score, violations, and recommendations",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "activity_logs": {
+              "type": "string",
+              "description": "Raw activity logs from one or more AI agents"
+            }
+          },
+          "required": ["activity_logs"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "risk_score": {
+              "type": "integer",
+              "description": "Overall risk score 0-100 (higher = worse)"
+            },
+            "violations": {
+              "type": "array",
+              "description": "List of detected violations"
+            },
+            "summary": {
+              "type": "string",
+              "description": "Executive summary of audit findings"
+            },
+            "agents_audited": {
+              "type": "array",
+              "description": "Agent IDs included in audit"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "author": "devjohri",
+    "repository": "https://github.com/devjohri/sentinel_mcp",
+    "tags": ["governance", "security", "cost-control", "observability", "auditing"]
+  }
+}

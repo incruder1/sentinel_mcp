@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "mcp_version": "2024-11-05",
   "server": {
-    "url": "http://host.docker.internal:10000",
-    "transport": "http"
+    "url": "http://host.docker.internal:10001/mcp",
+    "transport": "streamable-http"
   },
   "capabilities": {
     "tools": [

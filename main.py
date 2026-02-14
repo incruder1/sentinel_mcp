@@ -15,6 +15,13 @@ from pydantic import BaseModel, Field
 
 from tools import AuditReport, audit_agent_activity
 
+# Import MCP SDK
+try:
+    from mcp.server.fastmcp import FastMCP
+    MCP_AVAILABLE = True
+except ImportError:
+    MCP_AVAILABLE = False
+
 app = FastAPI(
     title="SentinelMCP - AI Agent Auditor",
     description="MCP-native auditor for AI agent governance: cost control, security, and observability",
@@ -109,6 +116,40 @@ if os.path.exists(static_dir):
     def serve_ui():
         """Serve the frontend UI."""
         return FileResponse(os.path.join(static_dir, "index.html"))
+
+
+# ---------- MCP Server Integration (for Archestra) ----------
+
+if MCP_AVAILABLE:
+    # Create MCP server with the auditor tool
+    mcp_server = FastMCP("SentinelMCP")
+
+    @mcp_server.tool()
+    def audit_agent_activity_mcp(activity_logs: str) -> AuditReport:
+        """
+        Audit AI agent activity logs and return governance report.
+
+        Analyzes agent activity and flags:
+        - Cost violations (spending spikes)
+        - Security violations (unauthorized access, credential leaks)
+        - Rate limit abuse (excessive API calls)
+        - Anomalies (infinite loops, repeated errors)
+
+        Args:
+            activity_logs: Raw activity logs from one or more AI agents
+
+        Returns:
+            Structured audit report with risk score, violations, and recommendations
+        """
+        return audit_agent_activity(activity_logs)
+
+    # Get the MCP ASGI app and mount it
+    # The MCP app already includes /mcp in its routes
+    mcp_asgi_app = mcp_server.streamable_http_app()
+    
+    # Mount the entire MCP app at root so /mcp endpoint is available
+    from starlette.routing import Mount
+    app.routes.insert(0, Mount("/", app=mcp_asgi_app))
 
 
 # ---------- Entrypoint ----------

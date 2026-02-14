@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelMCP - AI Agent Auditor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgb(239 68 68); }
+            50% { border-color: rgb(248 113 113); }
+        }
+        .critical-border {
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">SentinelMCP</h1>
+                        <p class="text-xs text-gray-500">AI Agent Auditor</p>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="https://github.com/devjohri/sentinel_mcp" target="_blank" class="text-gray-600 hover:text-gray-900">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold mb-4">AI Agent Governance at Scale</h2>
+                <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+                    Meta-level MCP auditor that watches your AI agents running in Archestra. 
+                    Flags cost violations, security breaches, and anomalies in real-time.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <span class="inline-flex items-center px-4 py-2 bg-white/20 rounded-lg text-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Cost Control
+                    </span>
+                    <span class="inline-flex items-center px-4 py-2 bg-white/20 rounded-lg text-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </span>
+                    <span class="inline-flex items-center px-4 py-2 bg-white/20 rounded-lg text-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Observability
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Live Demo Section -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">Live Audit Demo</h3>
+            
+            <!-- Sample Scenarios -->
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 mb-3">Try these scenarios:</p>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadScenario('cost')" class="px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 text-sm font-medium">
+                        💰 Cost Spike
+                    </button>
+                    <button onclick="loadScenario('security')" class="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-sm font-medium">
+                        🔒 Security Breach
+                    </button>
+                    <button onclick="loadScenario('rate')" class="px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 text-sm font-medium">
+                        ⚡ Rate Limit
+                    </button>
+                    <button onclick="loadScenario('anomaly')" class="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm font-medium">
+                        ⚠️ Anomaly
+                    </button>
+                    <button onclick="loadScenario('crisis')" class="px-4 py-2 bg-pink-50 text-pink-700 rounded-lg hover:bg-pink-100 text-sm font-medium">
+                        🚨 Multi-Agent Crisis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Agent Activity Logs</label>
+                <textarea 
+                    id="activityLogs" 
+                    rows="6" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    placeholder="Agent-A: Called gpt-4 500 times in 10 min, cost $750&#10;Agent-B: Attempted unauthorized access to production database&#10;Agent-C: API_KEY exposed in logs"
+                ></textarea>
+            </div>
+
+            <!-- Audit Button -->
+            <button 
+                onclick="auditLogs()" 
+                id="auditBtn"
+                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition font-medium text-lg"
+            >
+                🔍 Audit Agent Activity
+            </button>
+
+            <!-- Loading State -->
+            <div id="loading" class="hidden mt-6 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="text-gray-600 mt-2">Analyzing agent activity...</p>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="hidden mt-8">
+                <div class="border-t border-gray-200 pt-6">
+                    <h4 class="text-xl font-bold text-gray-900 mb-4">Audit Report</h4>
+                    
+                    <!-- Risk Score -->
+                    <div id="riskScore" class="mb-6"></div>
+
+                    <!-- Summary -->
+                    <div id="summary" class="mb-6"></div>
+
+                    <!-- Agents Audited -->
+                    <div id="agentsAudited" class="mb-6"></div>
+
+                    <!-- Violations -->
+                    <div id="violations"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Cost Spike Detection</h3>
+                <p class="text-gray-600 text-sm">Prevents runaway costs before bills explode. Flags agents burning $100+ per hour.</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Security Violations</h3>
+                <p class="text-gray-600 text-sm">Catches unauthorized access, credential leaks, and privilege escalation attempts.</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Anomaly Detection</h3>
+                <p class="text-gray-600 text-sm">Identifies infinite loops, error spikes, and unusual agent behavior patterns.</p>
+            </div>
+        </div>
+
+        <!-- Architecture -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">MCP-Native Architecture</h3>
+            <p class="text-gray-600 mb-6">
+                SentinelMCP uses the Model Context Protocol to govern AI agents running in Archestra's control plane. 
+                It's meta-level governance—using MCP to watch MCP agents.
+            </p>
+            <div class="bg-gray-50 rounded-lg p-6 font-mono text-sm">
+                <div class="text-gray-700">
+                    Archestra Control Plane<br>
+                    &nbsp;&nbsp;├─ Agent A, B, C → activity logs<br>
+                    &nbsp;&nbsp;└─ <span class="text-blue-600 font-semibold">SentinelMCP (Auditor)</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ reads logs via MCP<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ flags violations<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ structured audit report
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="mb-2">Built for the <span class="text-white font-semibold">2 Fast 2 MCP Hackathon</span></p>
+            <p class="text-sm">
+                <a href="https://github.com/devjohri/sentinel_mcp" class="hover:text-white">GitHub</a> • 
+                <a href="https://sentinel-mcp-auditor.onrender.com/health" class="hover:text-white">API</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const scenarios = {
+            cost: `Agent-Marketing: Called gpt-4 500 times in 10 min, cost $750.00
+Agent-Support: Called claude-opus 120 times, cost $156.00`,
+            security: `Agent-DataSync: Attempted unauthorized access to restricted S3 bucket
+Agent-DataSync: Database write operation on production PostgreSQL DB
+Agent-Analytics: API_KEY exposed in logs - credential leak detected`,
+            rate: `Agent-Scraper: 850 requests in 8 min - excessive API usage
+Agent-Scraper: Rate limit exceeded - 429 response from API
+Agent-Monitor: Same tool invoked 67 times with identical parameters`,
+            anomaly: `Agent-Worker: Same tool invoked 120 times with identical parameters
+Agent-Worker: 45 consecutive errors encountered during execution`,
+            crisis: `Agent-A: Called gpt-4 850 times in 10 min, cost $1,240.00
+Agent-A: Attempted unauthorized database write
+Agent-B: Rate limit exceeded - 429 response
+Agent-C: API_KEY exposed in logs
+Agent-D: Forbidden access to production secrets`
+        };
+
+        function loadScenario(type) {
+            document.getElementById('activityLogs').value = scenarios[type];
+        }
+
+        async function auditLogs() {
+            const logs = document.getElementById('activityLogs').value.trim();
+            if (!logs) {
+                alert('Please enter agent activity logs');
+                return;
+            }
+
+            const btn = document.getElementById('auditBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                const response = await fetch('/audit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ activity_logs: logs })
+                });
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
+
+        function displayResults(data) {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+
+            // Risk Score
+            const riskClass = data.risk_score >= 80 ? 'text-red-600' : data.risk_score >= 50 ? 'text-yellow-600' : 'text-green-600';
+            const riskBg = data.risk_score >= 80 ? 'bg-red-50 border-red-200 critical-border' : data.risk_score >= 50 ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200';
+            document.getElementById('riskScore').innerHTML = `
+                <div class="${riskBg} border-2 rounded-lg p-6 text-center">
+                    <div class="text-5xl font-bold ${riskClass}">${data.risk_score}<span class="text-2xl">/100</span></div>
+                    <div class="text-sm text-gray-600 mt-2">Risk Score</div>
+                </div>
+            `;
+
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-gray-900">${data.summary}</p>
+                </div>
+            `;
+
+            // Agents
+            document.getElementById('agentsAudited').innerHTML = `
+                <div>
+                    <p class="text-sm text-gray-600 mb-2">Agents Audited:</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${data.agents_audited.map(agent => `
+                            <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">${agent}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Violations
+            if (data.violations.length === 0) {
+                document.getElementById('violations').innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                        <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-green-900 font-semibold text-lg">No violations detected</p>
+                        <p class="text-green-700 text-sm mt-2">All agents operating within acceptable parameters</p>
+                    </div>
+                `;
+            } else {
+                const violationsHtml = data.violations.map((v, i) => {
+                    const severityColors = {
+                        'CRITICAL': 'bg-red-50 border-red-200 text-red-900',
+                        'HIGH': 'bg-orange-50 border-orange-200 text-orange-900',
+                        'MEDIUM': 'bg-yellow-50 border-yellow-200 text-yellow-900',
+                        'LOW': 'bg-blue-50 border-blue-200 text-blue-900'
+                    };
+                    const badgeColors = {
+                        'CRITICAL': 'bg-red-100 text-red-800',
+                        'HIGH': 'bg-orange-100 text-orange-800',
+                        'MEDIUM': 'bg-yellow-100 text-yellow-800',
+                        'LOW': 'bg-blue-100 text-blue-800'
+                    };
+                    return `
+                        <div class="border-2 ${severityColors[v.severity]} rounded-lg p-4 mb-4">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <span class="inline-block px-3 py-1 ${badgeColors[v.severity]} rounded-full text-xs font-bold">${v.severity}</span>
+                                    <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium ml-2">${v.type}</span>
+                                </div>
+                                <span class="text-sm font-mono text-gray-600">${v.agent_id}</span>
+                            </div>
+                            <p class="${severityColors[v.severity]} font-medium mb-2">${v.description}</p>
+                            <div class="bg-white/50 rounded p-3 mt-3">
+                                <p class="text-sm text-gray-700"><span class="font-semibold">Fix:</span> ${v.recommendation}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('violations').innerHTML = `
+                    <div>
+                        <h5 class="text-lg font-semibold text-gray-900 mb-4">Violations Detected (${data.violations.length})</h5>
+                        ${violationsHtml}
+                    </div>
+                `;
+            }
+        }
+
+        // Load a default scenario on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadScenario('cost');
+        });
+    </script>
+</body>
+</html>

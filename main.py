@@ -9,6 +9,8 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from tools import AuditReport, audit_agent_activity
@@ -64,9 +66,9 @@ def audit(request: AuditRequest) -> AuditReport:
     return audit_agent_activity(request.activity_logs)
 
 
-@app.get("/")
-def root():
-    """Root endpoint with API documentation."""
+@app.get("/api")
+def api_info():
+    """API documentation endpoint."""
     return {
         "service": "SentinelMCP - AI Agent Auditor",
         "description": "MCP-native governance for AI agents in Archestra",
@@ -94,6 +96,19 @@ Agent-D: Called gpt-4o 220 times in 5 min, cost $89.00
 Agent-D: 23 errors encountered during execution
 Agent-E: Normal operation - 12 successful tool invocations, cost $3.50""",
     }
+
+
+# ---------- Static files (UI) ----------
+
+# Mount static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+    @app.get("/")
+    def serve_ui():
+        """Serve the frontend UI."""
+        return FileResponse(os.path.join(static_dir, "index.html"))
 
 
 # ---------- Entrypoint ----------

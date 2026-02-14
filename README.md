@@ -128,7 +128,7 @@ Archestra Platform
 
 ```bash
 # Clone and setup
-git clone <your-repo>
+git clone https://github.com/incruder1/sentinel_mcp.git
 cd sentinel_mcp
 python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
@@ -199,8 +199,8 @@ SentinelMCP is designed as a standalone MCP server that can be deployed alongsid
 
 **1. Deploy SentinelMCP**
 ```bash
-# Option A: Use our public instance
-https://sentinel-mcp-auditor.onrender.com
+# Option A: Use live demo
+🔗 https://sentinel-mcp-auditor.onrender.com
 
 # Option B: Self-host with Docker
 docker build -t sentinel-mcp .

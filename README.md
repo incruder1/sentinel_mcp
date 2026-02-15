@@ -1,67 +1,32 @@
 # SentinelMCP – AI Agent Auditor
 
-**MCP-native governance for AI agents running at scale.**  
-Built for the **2 Fast 2 MCP Hackathon** — designed to integrate with **Archestra** deployments as a centralized auditor.
+MCP-based governance for AI agents: audit activity logs for cost spikes, security issues, rate limits, and anomalies. Built for the **2 Fast 2 MCP** hackathon; integrates with **Archestra** as an MCP server.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
----
-
-## The Problem: AI Agents Running Wild
-
-When companies deploy dozens of AI agents in production (e.g., using Archestra):
-
-- **Agent A** calls GPT-4 **500x in an hour** → Burns **$450** before anyone notices
-- **Agent B** accesses a **production database** it shouldn't touch → Security incident
-- **Agent C** hits **rate limits** in an infinite loop → System downtime
-- **Platform engineers have no visibility** until the damage is done
-
-**The gap:** Agents run fast, but **nobody's watching the watchers.**
+**Live demo:** [sentinel-mcp-auditor.onrender.com](https://sentinel-mcp-auditor.onrender.com)  
+**Repo:** [github.com/incruder1/sentinel_mcp](https://github.com/incruder1/sentinel_mcp)
 
 ---
 
-## The Solution: SentinelMCP
+## What it does
 
-**An MCP agent that audits OTHER agents.**
+You send agent activity logs (plain text). SentinelMCP returns a structured report:
 
-SentinelMCP ingests activity logs from AI agents and flags violations in real-time:
+- **Risk score** (0–100)
+- **Violations** with type (COST_SPIKE, SECURITY, RATE_LIMIT, ANOMALY), severity, description, and recommendation
+- **Agents audited** and a short summary
 
-- 💰 **Cost violations** — Agent spending spikes, runaway API costs
-- 🔒 **Security violations** — Unauthorized access, credential leaks
-- ⚡ **Rate limit abuse** — Excessive API calls, quota exhaustion
-- ⚠️ **Anomalies** — Infinite loops, repeated errors
-
-**Output:** Structured audit report with risk score (0-100) and actionable recommendations.
+It runs as a REST API and as an MCP server so Archestra (or any MCP client) can call the audit tool.
 
 ---
 
-## Why This Matters (And Why It Wins)
+## Tech stack
 
-### 1. **Meta-Level MCP** (Judges Love This)
-Using MCP to **govern MCP agents** is elegant. SentinelMCP is itself an MCP tool that monitors other MCP tools.
+- **Python 3.10+**, **FastAPI**, **Pydantic**, **Uvicorn**
+- **MCP SDK** for the Archestra-facing server
+- **OpenAI** (optional) for LLM-based audit when you set `OPENAI_API_KEY`
 
-### 2. **Solves Archestra's Core Value Prop**
-Archestra promises: *"governance, security, and observability for AI agents at scale."*  
-SentinelMCP **proves** that promise by:
-- **Detecting cost overruns** before they spiral
-- **Flagging security violations** in real-time
-- **Providing observability** across multi-agent systems
+**Architecture:** Two entrypoints. `main.py` runs the web app and REST API (e.g. on Render). `mcp_server.py` runs the MCP server (e.g. locally for Archestra). Both use the same audit logic in `tools.py`. Audit is rule-based by default; optional `use_ai=true` uses an LLM for messier logs.
 
-### 3. **Painful, Real Problem**
-Platform engineers managing 50+ agents in production **feel** this pain:
-- "Our AI bill jumped from $2k to $15k last month—why?"
-- "An agent accessed prod DB with write permissions—how?"
-- "We need audit trails for compliance."
-
-SentinelMCP answers all three.
-
-### 4. **Production-Ready Design**
-- **Read-only:** Only analyzes logs; never modifies agents
-- **Structured output:** Pydantic models with risk scores
-- **Tool boundaries:** Clear MCP contract for governance
-- **Archestra-native:** Designed to run as a central auditor in the control plane
-
----
 
 ## Architecture
 
@@ -127,189 +92,77 @@ Archestra Platform
 ### Local
 
 ```bash
-# Clone and setup
 git clone https://github.com/incruder1/sentinel_mcp.git
 cd sentinel_mcp
 python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-
-# Run server (default port 10000)
 python main.py
-# or: uvicorn main:app --host 0.0.0.0 --port 10000
 ```
 
-### Try It
+Open **http://localhost:10000** for the UI, or call the API:
 
 ```bash
-# Health check
 curl http://localhost:10000/health
-
-# Get sample agent activity logs
-curl http://localhost:10000/mock-data
-
-# Audit agent activity
-curl -X POST http://localhost:10000/audit \
-  -H "Content-Type: application/json" \
-  -d '{
-    "activity_logs": "Agent-A: Called gpt-4 85 times in 10 min, cost $127.50\nAgent-B: Attempted unauthorized access to restricted S3 bucket\nAgent-C: API_KEY exposed in logs"
-  }'
+curl -X POST http://localhost:10000/audit -H "Content-Type: application/json" \
+  -d '{"activity_logs": "Agent-X: cost $500 in 1hr\nAgent-Y: API_KEY exposed in logs"}'
 ```
 
-**Example Response:**
-
-```json
-{
-  "risk_score": 100,
-  "violations": [
-    {
-      "type": "COST_SPIKE",
-      "severity": "CRITICAL",
-      "agent_id": "Agent-A",
-      "description": "Agent Agent-A incurred $127 in charges - exceeds threshold",
-      "recommendation": "Set cost limits in Archestra; review agent prompt efficiency"
-    },
-    {
-      "type": "SECURITY",
-      "severity": "CRITICAL",
-      "agent_id": "Agent-B",
-      "description": "Agent Agent-B attempted unauthorized access - security policy violation",
-      "recommendation": "Review agent permissions in Archestra; enforce least-privilege"
-    },
-    {
-      "type": "SECURITY",
-      "severity": "CRITICAL",
-      "agent_id": "Agent-C",
-      "description": "Agent Agent-C accessed sensitive credentials - data leak risk",
-      "recommendation": "Use Archestra secret management; rotate exposed credentials"
-    }
-  ],
-  "summary": "⚠️ 3 violation(s) detected across 3 agent(s). 3 CRITICAL, 0 HIGH. Immediate action required.",
-  "agents_audited": ["Agent-A", "Agent-B", "Agent-C"]
-}
-```
+**Quick demo (CLI):** With the server running, `python demo.py` runs several audit scenarios against the API. For the multi-agent orchestrator: `python orchestrator.py` (uses the same `/audit` endpoint).
 
 ---
 
-## Integrating with Archestra
+## Project structure
 
-SentinelMCP is designed as a standalone MCP server that can be deployed alongside Archestra installations for centralized agent governance.
-
-### Integration Steps
-
-**1. Deploy SentinelMCP**
-```bash
-# Option A: Use live demo
-🔗 https://sentinel-mcp-auditor.onrender.com
-
-# Option B: Self-host with Docker
-docker build -t sentinel-mcp .
-docker run -p 10000:10000 sentinel-mcp
-
-# Option C: Deploy to your infrastructure
-# See render.yaml for deployment config
-```
-
-**2. Configure in Archestra**
-- Register SentinelMCP as an MCP server in your Archestra deployment
-- Set up agent activity log forwarding to `/audit` endpoint
-- Configure alert rules for CRITICAL/HIGH violations
-
-**3. Connect to Agent Logs**
-- Archestra agents → activity logs → SentinelMCP `/audit`
-- Returns structured violations with risk scores
-- Platform admins can view via Archestra UI or direct API calls
-
-### Architecture in Archestra Deployment
-
-```
-Your Archestra Deployment (self-hosted)
-  ├─ Application Agents (A, B, C)
-  │    └─ Generate activity logs
-  ├─ SentinelMCP (Auditor Agent)
-  │    ├─ Consumes logs via MCP
-  │    └─ Returns audit reports
-  └─ Archestra Control Plane
-       ├─ Orchestrates all agents
-       ├─ Routes logs to auditor
-       └─ Displays governance dashboard
-```
-
-### Why This Integration Matters
-
-- **Centralized governance**: One auditor for all agents in your Archestra instance
-- **Production-ready**: Designed for self-hosted enterprise deployments
-- **MCP-native**: Clean tool boundaries, structured output
-- **Flexible**: Works with any Archestra setup (on-prem, cloud, hybrid)
+| Path | Purpose |
+|------|---------|
+| `main.py` | FastAPI app: web UI, `/audit`, `/health`, `/mock-data` |
+| `mcp_server.py` | Standalone MCP server for Archestra (port 10001) |
+| `tools.py` | Audit logic: rules + optional LLM audit |
+| `static/index.html` | Frontend for live audit demo |
+| `demo.py` | CLI script: runs preset scenarios against API |
+| `orchestrator.py` | Runs mock agents and audits their output |
+| `agents/*.py` | Mock agents used by orchestrator |
+| `render.yaml` | Render blueprint; `Dockerfile` for container deploy |
 
 ---
 
-## Deploy to Render (Free)
+## Archestra integration
 
-1. Push this repo to GitHub
-2. **Render** → **New** → **Web Service**
-3. Connect repo
-4. **Build**: `pip install -r requirements.txt`
-5. **Start**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-6. Deploy and use the URL
-
-Or click: [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+1. Run the MCP server: `python mcp_server.py` (listens on port 10001).
+2. In Archestra, add an MCP server with URL `http://host.docker.internal:10001/mcp` (or your host:10001/mcp).
+3. The `audit_agent_activity_tool` appears in the tool list; agents or the chat can call it with `activity_logs` and get an audit report.
 
 ---
 
-## API Reference
+## API
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check for load balancers |
-| `/audit` | POST | Audit agent activity logs → structured report |
-| `/mock-data` | GET | Sample agent activity for testing |
-| `/` | GET | API documentation |
-
-**POST /audit** body:
-```json
-{
-  "activity_logs": "Agent-A: Called gpt-4 50x, cost $75\nAgent-B: Rate limit exceeded"
-}
-```
-
-**Response:** `AuditReport` with `risk_score`, `violations[]`, `summary`, `agents_audited[]`
+| Endpoint    | Method | Description |
+|------------|--------|-------------|
+| `/`        | GET    | Web UI      |
+| `/health`  | GET    | Health check |
+| `/audit`   | POST   | Body: `{ "activity_logs": "..." }`. Optional: `"use_ai": true` for LLM audit (needs `OPENAI_API_KEY`). |
+| `/mock-data` | GET | Sample logs for testing |
 
 ---
 
-## Violation Types
+## Violation types
 
-| Type | Examples | Severity |
-|------|----------|----------|
-| **COST_SPIKE** | Agent spent $500 in 1 hour, Called expensive model 200x | CRITICAL / HIGH |
-| **SECURITY** | Unauthorized DB access, Credential leak, Forbidden resource | CRITICAL / HIGH |
-| **RATE_LIMIT** | 500 API calls in 5 min, HTTP 429 errors, Quota exceeded | HIGH / MEDIUM |
-| **ANOMALY** | Same tool called 100x (loop), 50 consecutive errors | HIGH / MEDIUM |
+| Type        | Examples |
+|------------|----------|
+| COST_SPIKE | High spend, $ amounts, billing keywords |
+| SECURITY   | Unauthorized access, credentials, DB writes, admin |
+| RATE_LIMIT | 429, throttle, quota, excessive requests |
+| ANOMALY    | Same tool many times, consecutive errors, retries, stuck/crash |
+
+---
+
+## Deploy (Render)
+
+Connect the repo to Render as a Web Service. Build: `pip install -r requirements.txt`. Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`. Health path: `/health`. See `render.yaml` for a blueprint.
 
 ---
 
-## Why This Wins the Hackathon
-
-### Judging Criteria Alignment
-
-| Criterion | How SentinelMCP Scores |
-|-----------|------------------------|
-| **Best Use of Archestra** | ✅ Meta-level governance; uses MCP to monitor MCP agents; proves Archestra's value prop |
-| **Potential Impact** | ✅ Solves painful, real problem (runaway costs, security incidents); production-ready |
-| **Creativity & Originality** | ✅ "Agent that watches other agents" is elegant and novel |
-| **Technical Implementation** | ✅ Clean code, structured output, proper tool boundaries, MCP-native design |
-| **Learning & Growth** | ✅ Deep dive into MCP governance patterns, multi-agent orchestration |
-
-### Resume Impact
-
-You can write:
-- *"Built AI governance system for multi-agent platforms using MCP and Archestra"*
-- *"Implemented real-time auditing for cost control, security, and observability across 50+ agents"*
-- *"Designed meta-level MCP agent for platform-wide compliance and monitoring"*
-
-**This is SDE-2 / Platform Engineer level.**
-
----
 
 ## Future Roadmap
 
@@ -321,46 +174,7 @@ You can write:
 
 ---
 
-## Demo Video Script (2-3 min)
-
-**[0:00-0:30] Problem**  
-"When you run 50 AI agents in production, one agent can burn $10k in a day—and you won't know until the bill comes. SentinelMCP solves this."
-
-**[0:30-1:00] Architecture**  
-*Show diagram* "Agents run in Archestra. SentinelMCP audits their activity logs via MCP and flags cost, security, and operational violations."
-
-**[1:00-2:00] Demo**  
-*Terminal:* `curl /audit` with sample logs → show JSON response with CRITICAL violations + recommendations.
-
-**[2:00-2:30] Why Archestra**  
-"Without Archestra, this is chaos—50 agents, 50 separate audit systems. With Archestra, SentinelMCP runs centrally and governs everything. That's the power of MCP + control plane."
-
----
-
-## Tech Stack
-
-- **Python 3.10+** (MCP-native language)
-- **FastAPI** (ASGI server, production-ready)
-- **Pydantic** (structured output, type safety)
-- **Uvicorn** (ASGI runtime)
-
-No external dependencies beyond standard MCP ecosystem.
-
----
-
 ## License
 
-MIT
+MIT. Built for **2 Fast 2 MCP** (WeMakeDevs + Archestra.ai).
 
----
-
-## Built For
-
-**2 Fast 2 MCP Hackathon** by WeMakeDevs + Archestra.ai
-
-*"It doesn't matter if you win by an inch or a mile—winning's winning."*  
-— Dominic Toretto (and this README)
-
----
-
-**Ready to audit your agents? Deploy SentinelMCP now. 🏁**

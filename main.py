@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from tools import AuditReport, audit_agent_activity
+from tools import AuditReport, audit_agent_activity, audit_agent_activity_ai
 
 app = FastAPI(
     title="SentinelMCP - AI Agent Auditor",
@@ -39,6 +39,7 @@ class AuditRequest(BaseModel):
     activity_logs: str = Field(
         description="Raw activity logs from one or more AI agents running in Archestra"
     )
+    use_ai: bool = Field(default=False, description="Use LLM for audit (set OPENAI_API_KEY); else rule-based")
 
 
 # ---------- API endpoints ----------
@@ -55,14 +56,11 @@ def audit(request: AuditRequest) -> AuditReport:
     """
     Audit AI agent activity logs and return governance report.
 
-    Flags:
-    - Cost violations (spending spikes)
-    - Security violations (unauthorized access)
-    - Rate limit abuse (excessive API calls)
-    - Anomalies (infinite loops, errors)
-
-    Tool boundary: read-only analysis; no direct agent modification.
+    Use use_ai=true to analyze with an LLM (handles varied phrasings; requires OPENAI_API_KEY).
+    Default is fast rule-based audit (no API key).
     """
+    if request.use_ai:
+        return audit_agent_activity_ai(request.activity_logs)
     return audit_agent_activity(request.activity_logs)
 
 
@@ -74,10 +72,10 @@ def api_info():
         "description": "MCP-native governance for AI agents in Archestra",
         "endpoints": {
             "/health": "Health check",
-            "/audit": "POST - Audit agent activity logs",
+            "/audit": "POST - Audit logs (body: activity_logs, use_ai?); use_ai=true = LLM (OPENAI_API_KEY)",
             "/mock-data": "GET - Sample agent activity for testing",
         },
-        "repository": "https://github.com/devjohri/sentinel_mcp",
+        "repository": "https://github.com/incruder1/sentinel_mcp",
     }
 
 

@@ -173,8 +173,3 @@ Connect the repo to Render as a Web Service. Build: `pip install -r requirements
 - **Auto-remediation:** Pause agents on CRITICAL violations (with approval workflow)
 
 ---
-
-## License
-
-MIT. Built for **2 Fast 2 MCP** (WeMakeDevs + Archestra.ai).
-
